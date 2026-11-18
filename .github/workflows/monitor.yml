@@ -2,7 +2,7 @@ name: Claude referral monitor
 
 on:
   schedule:
-    - cron: '3,13,23,33,43,53 * * * *'
+    - cron: '7,37 * * * *'
   workflow_dispatch:
     inputs:
       test_delivery:
@@ -31,6 +31,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WEIR_API_KEY: ${{ secrets.WEIR_API_KEY }}
           TEST_DELIVERY: ${{ inputs.test_delivery }}
         run: |
           if [ "$TEST_DELIVERY" = "true" ]; then

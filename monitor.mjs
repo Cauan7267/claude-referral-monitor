@@ -1,15 +1,20 @@
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { codeHash, extractPasses, parseDirectory, parseFeed } from './parsers.mjs';
-import { parseXFeed } from './x-feeds.mjs';
+import { scanXSearch } from './x-search.mjs';
+import { scanRedditSearch } from './reddit-search.mjs';
+import { createBudgetedRequest } from './credit-budget.mjs';
 
 const statePath = new URL('./state.json', import.meta.url);
 const state = JSON.parse(await readFile(statePath, 'utf8'));
-const xProfiles = JSON.parse(await readFile(new URL('./x-profiles.json', import.meta.url), 'utf8'));
 state.sourceBackoff ??= {};
 const now = Date.now();
 const today = new Date(now).toISOString().slice(0, 10);
 const dryRun = process.argv.includes('--dry-run');
 const testDelivery = process.argv.includes('--test-delivery');
+let nextXCheckpoint;
+let nextRedditCheckpoint;
+let xQuotaExhausted = false;
+const budgetedRequest = createBudgetedRequest(state, now);
 const userAgent = 'ClaudeReferralMonitor/1.0 (+https://github.com/mosesfawole/claude-referral-monitor)';
 
 async function fetchPublic(url) {
@@ -34,31 +39,26 @@ async function scanFeed(url) {
   return parseFeed(response.body, now);
 }
 
-async function resolveShortLink(url) {
-  const response = await fetch(url, {
-    method: 'HEAD',
-    redirect: 'manual',
-    headers: { 'User-Agent': userAgent },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (response.status >= 300 && response.status < 400) {
-    return response.headers.get('location') || '';
+async function scanXKeywords() {
+  try {
+    const result = await scanXSearch(process.env.WEIR_API_KEY, state.xSearch, now, budgetedRequest);
+    nextXCheckpoint = result.checkpoint;
+    return result.passes;
+  } catch (error) {
+    xQuotaExhausted = Boolean(error.freeQuotaExhausted);
+    throw error;
   }
-  if (!response.ok) throw new Error(`Short-link lookup failed (HTTP ${response.status})`);
-  return '';
 }
 
-async function scanXProfiles() {
-  // The operator permits automated reading of public profile feeds.
-  // Keyword search on this service requires a paid pass and is outside this free setup.
-  const results = await Promise.allSettled(xProfiles.map(async username => {
-    const response = await fetchPublic(`https://teapawt.org/${username}/rss`);
-    return parseXFeed(response.body, resolveShortLink, now);
-  }));
-  const readable = results.filter(result => result.status === 'fulfilled');
-  console.log(`X profile coverage: ${readable.length}/${xProfiles.length} feeds readable`);
-  if (!readable.length) throw new Error('All watched X profile feeds are unavailable');
-  return readable.flatMap(result => result.value);
+async function scanRedditKeywords() {
+  try {
+    const result = await scanRedditSearch(process.env.WEIR_API_KEY, state.redditSearch, now, budgetedRequest);
+    nextRedditCheckpoint = result.checkpoint;
+    return result.passes;
+  } catch (error) {
+    xQuotaExhausted ||= Boolean(error.freeQuotaExhausted);
+    throw error;
+  }
 }
 
 async function scanSource(source) {
@@ -131,7 +131,8 @@ const sources = [
   { name: 'NodeLoc', scan: () => scanFeed('https://www.nodeloc.com/latest.rss') },
   { name: 'Linux.do', scan: () => scanFeed('https://linux.do/latest.rss') },
   { name: 'Hacker News', scan: scanHackerNews },
-  { name: 'X watched profiles', scan: scanXProfiles },
+  { name: 'X public keyword search', scan: scanXKeywords },
+  { name: 'Reddit public keyword search', scan: scanRedditKeywords },
   { name: 'Reddit posts', scan: () => scanFeed('https://www.reddit.com/r/ClaudeAI+ClaudeCode+claude+Claudeopus+Referrallinks/new/.rss?limit=100') },
   { name: 'Reddit comments', scan: () => scanFeed('https://www.reddit.com/r/ClaudeAI+ClaudeCode+claude+Claudeopus/comments/.rss?limit=100') },
 ];
@@ -156,6 +157,10 @@ state.lastCheckDay = today;
 state.sources = { available: successful, unavailable: failed };
 
 try {
+  if (xQuotaExhausted && !dryRun && state.xQuotaNoticeMonth !== today.slice(0, 7)) {
+    await telegram('X/Reddit keyword searches have paused to protect the free monthly allowance. Other sources continue. Public searches will resume when free credits reset.');
+    state.xQuotaNoticeMonth = today.slice(0, 7);
+  }
   if (!successful.length) {
     if (!dryRun && state.outageAlertDay !== today) {
       await telegram('Claude referral monitor could not read any public sources. Check the GitHub Actions run for details. The next scheduled run will retry.');
@@ -174,9 +179,11 @@ try {
     state.seen[hash] = new Date().toISOString();
     await saveState();
   }
+  if (nextXCheckpoint) state.xSearch = nextXCheckpoint;
+  if (nextRedditCheckpoint) state.redditSearch = nextRedditCheckpoint;
 
   if (testDelivery && !dryRun) {
-    await telegram(`Cloud monitor is running on GitHub Actions. Your PC can be switched off.\n\nChecks are scheduled every 10 minutes, with possible GitHub scheduling delays.\n\nSources currently readable: ${successful.join(', ')}.${failed.length ? `\nTemporarily unavailable: ${failed.join(', ')}.` : ''}`);
+    await telegram(`Cloud monitor is running on GitHub Actions. Your PC can be switched off.\n\nChecks are scheduled every 30 minutes, with possible GitHub scheduling delays. X and Reddit public searches use a daily free-credit budget.\n\nSources currently readable: ${successful.join(', ')}.${failed.length ? `\nTemporarily unavailable: ${failed.join(', ')}.` : ''}`);
     console.log('Cloud Telegram test delivered successfully');
   }
 
