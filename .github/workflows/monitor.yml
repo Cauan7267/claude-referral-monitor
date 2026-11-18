@@ -9,6 +9,14 @@ on:
         description: Send a cloud connectivity test to Telegram
         type: boolean
         default: false
+      setup_bot:
+        description: Configure the Telegram menu and webhook
+        type: boolean
+        default: false
+      webhook_url:
+        description: Verified production Telegram webhook URL
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -32,9 +40,15 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           WEIR_API_KEY: ${{ secrets.WEIR_API_KEY }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           TEST_DELIVERY: ${{ inputs.test_delivery }}
+          SETUP_BOT: ${{ inputs.setup_bot }}
+          BOT_WEBHOOK_URL: ${{ inputs.webhook_url }}
+          TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
         run: |
-          if [ "$TEST_DELIVERY" = "true" ]; then
+          if [ "$SETUP_BOT" = "true" ]; then
+            node setup-bot.mjs
+          elif [ "$TEST_DELIVERY" = "true" ]; then
             node monitor.mjs --test-delivery
           else
             node monitor.mjs

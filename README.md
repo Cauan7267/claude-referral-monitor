@@ -20,6 +20,12 @@ Only links with source publication dates within 48 hours qualify. Crossed-out li
 
 ## Operation
 
+The Telegram bot has an instant, owner-only webhook on Vercel Hobby. Use its pinned dashboard, persistent keyboard, or /menu. Recent finds, source health, the stored credit budget, pause/resume, and 30/60/120-minute settings are available there. Menus do not call the search provider. Alerts batch up to five passes and include open, source, and used buttons. Marking one pass used keeps the other links in its batch available.
+
+Controls and the most recent 30 pass records live in a private Vercel Blob store, with conditional writes for settings. Only the configured Telegram user can operate the bot, and webhook requests require Telegram's secret header. GitHub still owns scan scheduling and durable deduplication. It reads the controls before source requests, applies the chosen interval, and publishes one status snapshot per scan. At a 30-minute interval this uses about 1,488 snapshot writes in a 31-day month, within Hobby's 2,000 included advanced Blob operations, with the remainder available for interactive controls. Hobby caps access if its quota is reached, without overage billing.
+
+The bot's compact hierarchy and primary actions were inspired by [Saasbright](https://www.framer.com/marketplace/templates/saasbright/), adapted to Telegram-native typography and buttons.
+
 Open Actions → Claude referral monitor → Run workflow for an immediate scan. Enable the test-delivery input for a Telegram connectivity test. Disable the workflow from its Actions menu to stop monitoring.
 
 GitHub schedules can be delayed or skipped during high load, so the thirty-minute cadence is approximate. A small daily state commit keeps normal repository activity present. GitHub can disable public-repository schedules after 60 days without activity, so check Actions if alerts stop.

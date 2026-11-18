@@ -12,6 +12,8 @@ export function createBudgetedRequest(state, now = Date.now(), request = fetch) 
         if (response.ok) {
           const payload = await response.clone().json();
           remaining = payload.data?.freeGrant?.remaining;
+          state.searchCredits.freeRemaining = remaining;
+          state.searchCredits.resetsAt = payload.data?.freeGrant?.resetsAt;
           const reset = Date.parse(payload.data?.freeGrant?.resetsAt);
           const daysLeft = Math.max(1, Math.ceil((reset - now) / 86_400_000));
           dailyLimit = Number.isInteger(remaining) && Number.isFinite(daysLeft)
@@ -47,6 +49,7 @@ export function createBudgetedRequest(state, now = Date.now(), request = fetch) 
       const charged = headerCharge > 0 ? headerCharge : 1 + payload.data.length * resultCost;
       remaining -= charged;
       state.searchCredits.spent += charged;
+      state.searchCredits.freeRemaining = remaining;
     }
     return response;
   }

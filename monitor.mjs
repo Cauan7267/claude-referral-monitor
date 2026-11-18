@@ -3,6 +3,9 @@ import { codeHash, extractPasses, parseDirectory, parseFeed } from './parsers.mj
 import { scanXSearch } from './x-search.mjs';
 import { scanRedditSearch } from './reddit-search.mjs';
 import { createBudgetedRequest } from './credit-budget.mjs';
+import { defaultControls, readControls, publishSnapshot } from './bot-storage.mjs';
+import { sendTelegram } from './telegram.mjs';
+import { escapeHtml, passCard } from './bot-ui.mjs';
 
 const statePath = new URL('./state.json', import.meta.url);
 const state = JSON.parse(await readFile(statePath, 'utf8'));
@@ -11,6 +14,17 @@ const now = Date.now();
 const today = new Date(now).toISOString().slice(0, 10);
 const dryRun = process.argv.includes('--dry-run');
 const testDelivery = process.argv.includes('--test-delivery');
+const interactive = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const controls = interactive ? await readControls() : defaultControls;
+if (controls.paused) {
+  console.log('Monitoring is paused from Telegram. No source requests made.');
+  process.exit(0);
+}
+if (!testDelivery && state.lastScanAt && now - Date.parse(state.lastScanAt) < (controls.intervalMinutes - 2) * 60_000) {
+  console.log(`Next scan is not due yet (${controls.intervalMinutes}-minute interval).`);
+  process.exit(0);
+}
+const delivered = [];
 let nextXCheckpoint;
 let nextRedditCheckpoint;
 let publicSearchQuotaLow = false;
@@ -104,23 +118,7 @@ async function saveState() {
 }
 
 async function telegram(text) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) throw new Error('Telegram secrets are missing');
-  // Catch errors here so an HTTP exception cannot expose the credential-bearing URL.
-  let response;
-  try {
-    response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, link_preview_options: { is_disabled: true } }),
-      signal: AbortSignal.timeout(20_000),
-    });
-    const data = await response.json();
-    if (!response.ok || data.ok !== true) throw new Error('API rejected delivery');
-  } catch {
-    throw new Error(`Telegram delivery failed${response ? ` (HTTP ${response.status})` : ''}`);
-  }
+  return sendTelegram(escapeHtml(text));
 }
 
 const sources = [
@@ -154,6 +152,7 @@ results.forEach((result, index) => {
 });
 
 state.lastCheckDay = today;
+state.lastScanAt = new Date(now).toISOString();
 state.sources = { available: successful, unavailable: failed };
 
 try {
@@ -169,18 +168,25 @@ try {
     throw new Error('All public sources are unavailable');
   }
 
-  const fresh = [...candidates].filter(([hash]) => !state.seen[hash]);
-  for (const [hash, pass] of fresh) {
+  const latestControls = interactive ? await readControls() : controls;
+  const fresh = latestControls.paused ? [] : [...candidates].filter(([hash]) => !state.seen[hash] && !latestControls.used.includes(hash.slice(0, 32)));
+  for (let offset = 0; offset < fresh.length; offset += 5) {
+    const batch = fresh.slice(offset, offset + 5);
     if (dryRun) {
-      console.log(`Would send ${pass.url} published ${pass.published} from ${pass.source}`);
+      console.log(`Would send one alert containing ${batch.length} fresh passes`);
       continue;
     }
-    await telegram(`New Claude Pro guest pass\n${pass.url}\n\nPosted ${pass.published}\nSource ${pass.source}\n\nRedemption availability is unverified.`);
-    state.seen[hash] = new Date().toISOString();
+    const passes = batch.map(([hash, pass]) => ({ ...pass, hash: hash.slice(0, 32) }));
+    const card = passCard(passes);
+    const message = await sendTelegram(card.text, { reply_markup: card.reply_markup });
+    batch.forEach(([hash], index) => {
+      state.seen[hash] = new Date().toISOString();
+      delivered.push({ ...passes[index], messageId: message.message_id, batchIndex: index });
+    });
     await saveState();
   }
-  if (nextXCheckpoint) state.xSearch = nextXCheckpoint;
-  if (nextRedditCheckpoint) state.redditSearch = nextRedditCheckpoint;
+  if (!latestControls.paused && nextXCheckpoint) state.xSearch = nextXCheckpoint;
+  if (!latestControls.paused && nextRedditCheckpoint) state.redditSearch = nextRedditCheckpoint;
 
   if (testDelivery && !dryRun) {
     await telegram(`Cloud monitor is running on GitHub Actions. Your PC can be switched off.\n\nChecks are scheduled every 30 minutes, with possible GitHub scheduling delays. X and Reddit public searches use a daily free-credit budget.\n\nSources currently readable: ${successful.join(', ')}.${failed.length ? `\nTemporarily unavailable: ${failed.join(', ')}.` : ''}`);
@@ -190,4 +196,5 @@ try {
   console.log(`Scan complete: ${successful.length}/${sources.length} sources readable, ${fresh.length} new links`);
 } finally {
   await saveState();
+  if (interactive && !dryRun) await publishSnapshot(state, delivered);
 }
