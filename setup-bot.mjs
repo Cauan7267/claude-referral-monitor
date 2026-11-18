@@ -14,7 +14,9 @@ await publishSnapshot(state);
 const controls = await readControls();
 const card = renderScreen('menu', controls, await readSnapshot());
 if (controls.menuMessageId) {
-  await telegramApi('editMessageText', { chat_id: process.env.TELEGRAM_CHAT_ID, message_id: controls.menuMessageId, parse_mode: 'HTML', ...card });
+  try {
+    await telegramApi('editMessageText', { chat_id: process.env.TELEGRAM_CHAT_ID, message_id: controls.menuMessageId, parse_mode: 'HTML', ...card });
+  } catch (error) { if (!error.notModified) throw error; }
 } else {
   await sendTelegram('<b>Your radar has a new menu</b>\n\nUse the buttons below to check status, see recent finds, or change settings.', { reply_markup: replyKeyboard });
   const message = await sendTelegram(card.text, { reply_markup: card.reply_markup });

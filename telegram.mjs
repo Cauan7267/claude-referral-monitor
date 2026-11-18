@@ -10,6 +10,7 @@ export async function telegramApi(method, payload = {}, request = fetch) {
     if (!response.ok || data.ok !== true) {
       const error = new Error(`Telegram ${method} failed (HTTP ${response.status})`);
       error.code = data.error_code;
+      error.notModified = data.description?.includes('message is not modified');
       throw error;
     }
     return data.result;

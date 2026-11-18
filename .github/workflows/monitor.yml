@@ -17,6 +17,10 @@ on:
         description: Verified production Telegram webhook URL
         type: string
         default: ''
+      verify_bot:
+        description: Verify the first webhook setup and connect Telegram
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -44,9 +48,12 @@ jobs:
           TEST_DELIVERY: ${{ inputs.test_delivery }}
           SETUP_BOT: ${{ inputs.setup_bot }}
           BOT_WEBHOOK_URL: ${{ inputs.webhook_url }}
+          VERIFY_BOT: ${{ inputs.verify_bot }}
           TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
         run: |
-          if [ "$SETUP_BOT" = "true" ]; then
+          if [ "$VERIFY_BOT" = "true" ]; then
+            node verify-bot.mjs
+          elif [ "$SETUP_BOT" = "true" ]; then
             node setup-bot.mjs
           elif [ "$TEST_DELIVERY" = "true" ]; then
             node monitor.mjs --test-delivery
