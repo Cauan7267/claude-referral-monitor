@@ -1,0 +1,12 @@
+{
+  "name": "claude-referral-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node monitor.mjs",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": { "cheerio": "1.2.0" }
+}
