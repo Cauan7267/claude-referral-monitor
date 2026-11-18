@@ -5,7 +5,22 @@
     "97dab39ee0e1a1a6e71edb14b89d51fd4a8c7d3053c96f24eddc1a66cabc60ba": "previously-alerted",
     "11a1597b57d81734d9fc34267d6c0998a414aaa82bf18960d0147c13d3b001f8": "previously-alerted",
     "f17f68b814ca0ad7d5e82f5aac5fc3b01bbec5184220b989a5ab14ebdd5b3f08": "2026-11-18T08:19:46.204Z",
-    "8a5a24aeb17a3509a5224fe3f3a0bd6c2932fa329f2d1e76b4b7c956afc39cf8": "2026-11-18T08:19:46.345Z"
+    "8a5a24aeb17a3509a5224fe3f3a0bd6c2932fa329f2d1e76b4b7c956afc39cf8": "2026-11-18T08:19:46.345Z",
+    "d5d96e793ce8987e50b7c2a51e55b3d90990df01177c4525ac17b8103123f8c0": "2026-11-18T08:53:11.826Z",
+    "d5420856b77bc7be3388a35c9b6afafa007560cde48f088133dcbe6fca03d98e": "2026-11-18T08:53:11.976Z",
+    "e18ff71e53623f988e113be3fa0f0c860765fbdbe52803811031e477431090ac": "2026-11-18T08:53:12.135Z",
+    "2131f2d900aee460140b3ae0ff4fc36f1c0a0861c21e26db505298daaa7afb36": "2026-11-18T08:53:12.327Z",
+    "b444c1306bf5153d9d8782b58a73efc473126457aef296415a3a8888f35039bc": "2026-11-18T08:53:12.476Z",
+    "a8f1f606fb17e0e077dfbcf809b8e3268a5efa350fcc6758dc7be8b4d9c4cad6": "2026-11-18T08:53:12.631Z",
+    "73c9e3aecbdb22a08e3d95385c7c7682375ba882c1a5cb8992cad01f297dfdad": "2026-11-18T08:53:12.778Z",
+    "577d6020c3c34e3fa50d71eb11ba327c377d02cf66db43231e8b60fd9845bdf8": "2026-11-18T08:53:12.941Z",
+    "7d0aff829c510278faa14b6ccd121cec39d9c43e88d1729fd6f59f4d93e062ba": "2026-11-18T08:53:13.097Z",
+    "92802a9306f2c468b3fba1d7b945c1018ffb5c168447e01ae9a689246bb04861": "2026-11-18T08:53:13.255Z",
+    "3041b09755518fb6d06945789f5180aa1ed908729b9875c3d4398c996bfc7c1a": "2026-11-18T08:53:13.413Z",
+    "29d7d8bb4fdfdcf65a980a8fc0878a9837b5c40ea5cc73e2c2cb0150957b06ce": "2026-11-18T08:53:13.582Z",
+    "65ea4ca9da44486c968014497d076ea101ccddb41ca129424b18dd5a75ce139f": "2026-11-18T08:53:13.738Z",
+    "da338235b0c0fd9c425232dd62fd46445490a73035a0f74c09a6eba3ecbf7459": "2026-11-18T08:53:13.885Z",
+    "14109358df265d0ced031584cc0de6e6f3d8bb2477296c68a078c6898453c100": "2026-11-18T08:53:14.032Z"
   },
   "lastCheckDay": "2026-11-18",
   "sources": {
@@ -13,10 +28,11 @@
       "Guest pass directory",
       "NodeLoc",
       "Hacker News",
-      "X watched profiles"
+      "X public keyword search"
     ],
     "unavailable": [
       "Linux.do",
+      "Reddit public keyword search",
       "Reddit posts",
       "Reddit comments"
     ]
@@ -24,5 +40,13 @@
   "sourceBackoff": {
     "Linux.do": "2026-11-18T14:33:40.690Z",
     "Reddit posts": "2026-11-18T09:03:40.690Z"
+  },
+  "searchCredits": {
+    "day": "2026-11-18",
+    "spent": 30,
+    "dailyLimit": 384
+  },
+  "xSearch": {
+    "completedAt": "2026-11-18T08:53:01.522Z"
   }
 }
