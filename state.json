@@ -39,14 +39,16 @@
   },
   "sourceBackoff": {
     "Linux.do": "2026-11-18T14:33:40.690Z",
-    "Reddit posts": "2026-11-18T09:03:40.690Z"
+    "Reddit posts": "2026-11-18T09:03:40.690Z",
+    "Reddit comments": "2026-11-18T10:44:47.137Z",
+    "Reddit public keyword search": "2026-11-18T10:44:47.137Z"
   },
   "searchCredits": {
     "day": "2026-11-18",
-    "spent": 30,
+    "spent": 31,
     "dailyLimit": 384
   },
   "xSearch": {
-    "completedAt": "2026-11-18T08:53:01.522Z"
+    "completedAt": "2026-11-18T10:14:47.137Z"
   }
 }
