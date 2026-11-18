@@ -20,7 +20,7 @@ export async function scanRedditSearch(apiKey, previous = {}, now = Date.now(), 
   let cursor = previous.cursor;
   const passes = [];
   for (let page = 0; page < 3; page += 1) {
-    const response = await request('https://api.weirapp.io/v1/reddit/search', {
+    const options = {
       method: 'POST', headers,
       body: JSON.stringify({
         query: 'url:claude.ai/referral OR "claude.ai/referral/"',
@@ -28,11 +28,20 @@ export async function scanRedditSearch(apiKey, previous = {}, now = Date.now(), 
         ...(cursor ? { cursor } : {}),
       }),
       signal: AbortSignal.timeout(25_000),
-    });
+    };
+    let response;
+    try {
+      response = await request('https://api.weirapp.io/v1/reddit/search', options);
+    } catch (error) {
+      if (page > 0 && error.budgetPaused) break;
+      throw error;
+    }
     if (!response.ok) {
       const error = new Error(`Reddit search provider returned HTTP ${response.status}`);
       error.status = response.status;
       error.freeQuotaExhausted = response.status === 402;
+      const retryAfter = response.headers.get('retry-after');
+      if (retryAfter) error.retryAt = /^\d+$/.test(retryAfter) ? now + Number(retryAfter) * 1000 : Date.parse(retryAfter);
       throw error;
     }
     const payload = await response.json();

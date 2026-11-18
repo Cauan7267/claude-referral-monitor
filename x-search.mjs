@@ -23,6 +23,8 @@ export async function scanXSearch(apiKey, previous = {}, now = Date.now(), reque
       const error = new Error(`X search provider returned HTTP ${response.status}`);
       error.status = response.status;
       error.freeQuotaExhausted = response.status === 402;
+      const retryAfter = response.headers.get('retry-after');
+      if (retryAfter) error.retryAt = /^\d+$/.test(retryAfter) ? now + Number(retryAfter) * 1000 : Date.parse(retryAfter);
       throw error;
     }
     return response.json();

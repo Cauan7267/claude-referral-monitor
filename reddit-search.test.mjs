@@ -23,3 +23,29 @@ test('Reddit keyword search covers communities without an account filter', async
   assert.equal(body.subreddit, undefined);
   assert.equal(body.sort, 'new');
 });
+
+test('Reddit service failures preserve the requested retry delay', async () => {
+  const transport = async url => url.endsWith('/usage')
+    ? Response.json({ data: {} })
+    : Response.json({ error: {} }, { status: 503, headers: { 'retry-after': '1800' } });
+  await assert.rejects(scanRedditSearch('test-key', {}, now, transport), error => {
+    assert.equal(error.status, 503);
+    assert.equal(error.retryAt, now + 1_800_000);
+    return true;
+  });
+});
+
+test('a budget pause preserves delivered-page candidates and the next cursor', async () => {
+  const transport = async (url, options) => {
+    if (url.endsWith('/usage')) return Response.json({ data: {} });
+    if (JSON.parse(options.body).cursor) {
+      const error = new Error('Daily budget');
+      error.budgetPaused = true;
+      throw error;
+    }
+    return Response.json({ data: [post], meta: { nextCursor: 'next-page' } });
+  };
+  const result = await scanRedditSearch('test-key', {}, now, transport);
+  assert.equal(result.passes.length, 1);
+  assert.deepEqual(result.checkpoint, { time: 'week', cursor: 'next-page' });
+});

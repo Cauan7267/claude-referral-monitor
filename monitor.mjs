@@ -13,7 +13,7 @@ const dryRun = process.argv.includes('--dry-run');
 const testDelivery = process.argv.includes('--test-delivery');
 let nextXCheckpoint;
 let nextRedditCheckpoint;
-let xQuotaExhausted = false;
+let publicSearchQuotaLow = false;
 const budgetedRequest = createBudgetedRequest(state, now);
 const userAgent = 'ClaudeReferralMonitor/1.0 (+https://github.com/mosesfawole/claude-referral-monitor)';
 
@@ -45,7 +45,7 @@ async function scanXKeywords() {
     nextXCheckpoint = result.checkpoint;
     return result.passes;
   } catch (error) {
-    xQuotaExhausted = Boolean(error.freeQuotaExhausted);
+    publicSearchQuotaLow ||= Boolean(error.freeQuotaExhausted);
     throw error;
   }
 }
@@ -56,7 +56,7 @@ async function scanRedditKeywords() {
     nextRedditCheckpoint = result.checkpoint;
     return result.passes;
   } catch (error) {
-    xQuotaExhausted ||= Boolean(error.freeQuotaExhausted);
+    publicSearchQuotaLow ||= Boolean(error.freeQuotaExhausted);
     throw error;
   }
 }
@@ -71,8 +71,8 @@ async function scanSource(source) {
     delete state.sourceBackoff[source.name];
     return passes;
   } catch (error) {
-    if (error.status === 429 || error.status === 403) {
-      const defaultDelay = error.status === 429 ? 30 * 60_000 : 6 * 3_600_000;
+    if ([429, 403, 503].includes(error.status)) {
+      const defaultDelay = error.status === 403 ? 6 * 3_600_000 : 30 * 60_000;
       const retryTime = Math.max(error.retryAt || 0, now + defaultDelay);
       state.sourceBackoff[source.name] = new Date(retryTime).toISOString();
     }
@@ -157,9 +157,9 @@ state.lastCheckDay = today;
 state.sources = { available: successful, unavailable: failed };
 
 try {
-  if (xQuotaExhausted && !dryRun && state.xQuotaNoticeMonth !== today.slice(0, 7)) {
-    await telegram('X/Reddit keyword searches have paused to protect the free monthly allowance. Other sources continue. Public searches will resume when free credits reset.');
-    state.xQuotaNoticeMonth = today.slice(0, 7);
+  if (publicSearchQuotaLow && !dryRun && state.quotaNoticeMonth !== today.slice(0, 7)) {
+    await telegram('Public search is nearing its free monthly credit limit. Some keyword searches are paused until credits reset. Other sources continue.');
+    state.quotaNoticeMonth = today.slice(0, 7);
   }
   if (!successful.length) {
     if (!dryRun && state.outageAlertDay !== today) {
