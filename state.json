@@ -3,6 +3,21 @@
     "ae4a5ecd0c429d90cbd8fdfbdb838f91c06073f722a9d0d2f631733c2cca1113": "previously-alerted",
     "1090d0a08b2f57e812acc1f4073baa31f9d2348bf3dcc88778b204e9cab977a0": "previously-alerted",
     "97dab39ee0e1a1a6e71edb14b89d51fd4a8c7d3053c96f24eddc1a66cabc60ba": "previously-alerted",
-    "11a1597b57d81734d9fc34267d6c0998a414aaa82bf18960d0147c13d3b001f8": "previously-alerted"
+    "11a1597b57d81734d9fc34267d6c0998a414aaa82bf18960d0147c13d3b001f8": "previously-alerted",
+    "f17f68b814ca0ad7d5e82f5aac5fc3b01bbec5184220b989a5ab14ebdd5b3f08": "2026-11-18T08:19:46.204Z",
+    "8a5a24aeb17a3509a5224fe3f3a0bd6c2932fa329f2d1e76b4b7c956afc39cf8": "2026-11-18T08:19:46.345Z"
+  },
+  "lastCheckDay": "2026-11-18",
+  "sources": {
+    "available": [
+      "Guest pass directory",
+      "NodeLoc",
+      "Hacker News"
+    ],
+    "unavailable": [
+      "Linux.do",
+      "Reddit posts",
+      "Reddit comments"
+    ]
   }
 }
