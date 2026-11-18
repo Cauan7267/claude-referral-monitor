@@ -1,8 +1,11 @@
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { codeHash, extractPasses, parseDirectory, parseFeed } from './parsers.mjs';
+import { parseXFeed } from './x-feeds.mjs';
 
 const statePath = new URL('./state.json', import.meta.url);
 const state = JSON.parse(await readFile(statePath, 'utf8'));
+const xProfiles = JSON.parse(await readFile(new URL('./x-profiles.json', import.meta.url), 'utf8'));
+state.sourceBackoff ??= {};
 const now = Date.now();
 const today = new Date(now).toISOString().slice(0, 10);
 const dryRun = process.argv.includes('--dry-run');
@@ -14,13 +17,67 @@ async function fetchPublic(url) {
     headers: { 'User-Agent': userAgent, Accept: 'application/rss+xml, application/json, text/html;q=0.9' },
     signal: AbortSignal.timeout(20_000),
   });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) {
+    const error = new Error(`HTTP ${response.status}`);
+    error.status = response.status;
+    const retryAfter = response.headers.get('retry-after');
+    if (retryAfter) {
+      error.retryAt = /^\d+$/.test(retryAfter) ? Date.now() + Number(retryAfter) * 1000 : Date.parse(retryAfter);
+    }
+    throw error;
+  }
   return { body: await response.text(), date: Date.parse(response.headers.get('date')) || now };
 }
 
 async function scanFeed(url) {
   const response = await fetchPublic(url);
   return parseFeed(response.body, now);
+}
+
+async function resolveShortLink(url) {
+  const response = await fetch(url, {
+    method: 'HEAD',
+    redirect: 'manual',
+    headers: { 'User-Agent': userAgent },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (response.status >= 300 && response.status < 400) {
+    return response.headers.get('location') || '';
+  }
+  if (!response.ok) throw new Error(`Short-link lookup failed (HTTP ${response.status})`);
+  return '';
+}
+
+async function scanXProfiles() {
+  // The operator permits automated reading of public profile feeds.
+  // Keyword search on this service requires a paid pass and is outside this free setup.
+  const results = await Promise.allSettled(xProfiles.map(async username => {
+    const response = await fetchPublic(`https://teapawt.org/${username}/rss`);
+    return parseXFeed(response.body, resolveShortLink, now);
+  }));
+  const readable = results.filter(result => result.status === 'fulfilled');
+  console.log(`X profile coverage: ${readable.length}/${xProfiles.length} feeds readable`);
+  if (!readable.length) throw new Error('All watched X profile feeds are unavailable');
+  return readable.flatMap(result => result.value);
+}
+
+async function scanSource(source) {
+  const retryAt = state.sourceBackoff[source.name];
+  if (retryAt && Date.parse(retryAt) > now) {
+    throw new Error(`Backing off until ${retryAt}`);
+  }
+  try {
+    const passes = await source.scan();
+    delete state.sourceBackoff[source.name];
+    return passes;
+  } catch (error) {
+    if (error.status === 429 || error.status === 403) {
+      const defaultDelay = error.status === 429 ? 30 * 60_000 : 6 * 3_600_000;
+      const retryTime = Math.max(error.retryAt || 0, now + defaultDelay);
+      state.sourceBackoff[source.name] = new Date(retryTime).toISOString();
+    }
+    throw error;
+  }
 }
 
 async function scanHackerNews() {
@@ -74,11 +131,12 @@ const sources = [
   { name: 'NodeLoc', scan: () => scanFeed('https://www.nodeloc.com/latest.rss') },
   { name: 'Linux.do', scan: () => scanFeed('https://linux.do/latest.rss') },
   { name: 'Hacker News', scan: scanHackerNews },
+  { name: 'X watched profiles', scan: scanXProfiles },
   { name: 'Reddit posts', scan: () => scanFeed('https://www.reddit.com/r/ClaudeAI+ClaudeCode+claude+Claudeopus+Referrallinks/new/.rss?limit=100') },
   { name: 'Reddit comments', scan: () => scanFeed('https://www.reddit.com/r/ClaudeAI+ClaudeCode+claude+Claudeopus/comments/.rss?limit=100') },
 ];
 
-const results = await Promise.allSettled(sources.map(source => source.scan()));
+const results = await Promise.allSettled(sources.map(scanSource));
 const candidates = new Map();
 const successful = [];
 const failed = [];

@@ -33,18 +33,20 @@ export function extractPasses(markup, source, published, now = Date.now()) {
   return codes.map(code => ({ code, url: `https://claude.ai/referral/${code}`, source, published: published.toISOString() }));
 }
 
-export function parseFeed(xml, now = Date.now()) {
+export function feedEntries(xml) {
   const $ = load(xml, { xml: true });
   if (!$('rss, feed').length) throw new Error('Response is not an RSS or Atom feed');
-  const passes = [];
-  $('item, entry').each((_, element) => {
+  return $('item, entry').toArray().map(element => {
     const entry = $(element);
     const published = publicationTime(entry.find('published, pubDate').first().text());
-    const link = entry.find('link[rel="alternate"]').attr('href') || entry.find('link').attr('href') || entry.find('link').first().text();
+    const source = entry.find('link[rel="alternate"]').attr('href') || entry.find('link').attr('href') || entry.find('link').first().text();
     const markup = entry.find('description, content, content\\:encoded').map((_, part) => $(part).text()).get().join('\n');
-    passes.push(...extractPasses(markup, link, published, now));
+    return { source, published, markup };
   });
-  return passes;
+}
+
+export function parseFeed(xml, now = Date.now()) {
+  return feedEntries(xml).flatMap(entry => extractPasses(entry.markup, entry.source, entry.published, now));
 }
 
 export function parseDirectory(html, referenceTime = Date.now(), now = Date.now()) {

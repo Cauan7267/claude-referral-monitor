@@ -8,6 +8,10 @@ The repository is public so standard Actions compute is free. Telegram credentia
 
 Reads the public guest pass directory at claudecoworkcourse.com, NodeLoc and Linux.do RSS feeds, Hacker News search, and public Reddit posts and comments. Source access varies, especially Reddit, which may block cloud runners. Each run logs accessible and unavailable sources. If all sources fail, the bot sends an outage alert once per day and subsequent runs retry.
 
+Also reads X/Twitter profile RSS feeds through teapawt.org, whose operator permits automated profile reading. The initial ten accounts in `x-profiles.json` have previously shared Claude referral links. Add public handles there to expand coverage. Alerts link to the original X post and expand t.co short links when present. Coverage is limited to watched accounts. Full X keyword-search feeds require a paid pass and are excluded from this free setup. Mirror availability and completeness can vary.
+
+On HTTP 429 the monitor waits at least 30 minutes, respecting longer Retry-After headers. On HTTP 403 it waits at least six hours. Access to blocked Reddit sources through the approved Data API requires separate credentials and Reddit approval.
+
 Only links with source publication dates within 48 hours qualify. Crossed-out links, directory entries marked retired, and offers explicitly marked claimed or expired are excluded. Query strings are removed and sent codes are deduplicated persistently. Availability at redemption remains unverified.
 
 ## Operation
