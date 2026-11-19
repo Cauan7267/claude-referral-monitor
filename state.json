@@ -26,9 +26,14 @@
     "c7893dd557eaceee6a24c60c0937c08f6718011629f5a342d6ab9290b43c917b": "2026-11-18T17:57:46.771Z",
     "09fa16e74212eebf5f7f29171c0dfbe8d38efd8ae48c3ee66bfa0a205cc0e760": "2026-11-18T17:57:46.771Z",
     "9f7e565c537c4083821be7e13cb3b7cfc9ded094c416b33bb837ed6350bb6c3f": "2026-11-18T17:57:46.771Z",
-    "b599e40db02ef9485005e50092c81bc6a780bbb2f61664472d30baf78dc54be0": "2026-11-18T17:57:46.959Z"
+    "b599e40db02ef9485005e50092c81bc6a780bbb2f61664472d30baf78dc54be0": "2026-11-18T17:57:46.959Z",
+    "3c26eaa67607d69ea1a01ce87d7890eef516c17872e64dc8556f99fc2208e927": "2026-11-19T00:15:51.990Z",
+    "ab30d4be928a05e8f7bb3892086d48840acf265b7b70c99610cf8afeb6c57f05": "2026-11-19T00:15:51.990Z",
+    "fdb177ffb70b747050f2c8d4f947caf07e81de158e0a6f6ee56074d77b5aaeb2": "2026-11-19T00:15:51.990Z",
+    "8429a5457f7e25bd536f0994e90c4ee28945f682c89eaf00424f5af6f71c0d36": "2026-11-19T00:15:51.990Z",
+    "840b6d1e8a911d07dadb6a6c4ba258a9196b00e2c07e4398b112c2e79048b947": "2026-11-19T00:15:51.990Z"
   },
-  "lastCheckDay": "2026-11-18",
+  "lastCheckDay": "2026-11-19",
   "sources": {
     "available": [
       "Guest pass directory",
@@ -44,20 +49,20 @@
     ]
   },
   "sourceBackoff": {
-    "Linux.do": "2026-11-18T23:57:40.247Z",
+    "Linux.do": "2026-11-19T06:15:45.533Z",
     "Reddit posts": "2026-11-18T18:27:40.247Z",
-    "Reddit comments": "2026-11-18T10:44:47.137Z",
-    "Reddit public keyword search": "2026-11-18T18:27:40.247Z"
+    "Reddit comments": "2026-11-19T00:45:45.533Z",
+    "Reddit public keyword search": "2026-11-19T00:45:45.533Z"
   },
   "searchCredits": {
-    "day": "2026-11-18",
-    "spent": 43,
-    "dailyLimit": 384,
-    "freeRemaining": 4957,
-    "resetsAt": "2026-12-01T00:00:00.000Z"
+    "day": "2026-11-19",
+    "spent": 8,
+    "freeRemaining": 4949,
+    "resetsAt": "2026-12-01T00:00:00.000Z",
+    "dailyLimit": 413
   },
   "xSearch": {
-    "completedAt": "2026-11-18T17:57:40.247Z"
+    "completedAt": "2026-11-19T00:15:45.533Z"
   },
-  "lastScanAt": "2026-11-18T17:57:40.247Z"
+  "lastScanAt": "2026-11-19T00:15:45.533Z"
 }
