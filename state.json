@@ -71,28 +71,31 @@
     "fab5546666e2fda1d1c6e37115b7177123888b41765cfd3abf25fca98660926a": "2026-11-22T21:42:03.776Z",
     "420012bf71092a9b39ee95d585d9c7a06facac24d74e3ea727e8cf65d2aed182": "2026-11-23T02:34:40.124Z",
     "98210645228739a72170ac191d1795689e327be42f9b0fd55f812b65f1d1290b": "2026-11-23T02:34:40.124Z",
-    "04cb93bfeadb3fd84368fccf24b106c624c27df72e87d979b1401f277d0d8641": "2026-11-23T02:34:40.124Z"
+    "04cb93bfeadb3fd84368fccf24b106c624c27df72e87d979b1401f277d0d8641": "2026-11-23T02:34:40.124Z",
+    "63dc01f3a8345ca732e9dfe8dd960bcc2cbb01c887741eec2b788b310a87898a": "2026-11-23T11:14:00.448Z",
+    "6d64a9ab82afc1fc24becbf6ed492e04634834b2ff6d12f0c1c1c3a508dc4330": "2026-11-23T11:14:00.449Z"
   },
   "lastCheckDay": "2026-11-23",
   "sources": {
     "available": [
       "Guest pass directory",
       "NodeLoc",
-      "Hacker News",
-      "X public keyword search"
+      "Hacker News"
     ],
     "unavailable": [
       "Linux.do",
+      "X public keyword search",
       "Reddit public keyword search",
       "Reddit posts",
       "Reddit comments"
     ]
   },
   "sourceBackoff": {
-    "Linux.do": "2026-11-23T03:41:56.744Z",
+    "Linux.do": "2026-11-23T17:13:54.085Z",
     "Reddit posts": "2026-11-22T22:11:56.744Z",
-    "Reddit comments": "2026-11-23T03:04:32.359Z",
-    "Reddit public keyword search": "2026-11-23T03:04:32.359Z"
+    "Reddit comments": "2026-11-23T11:43:54.085Z",
+    "Reddit public keyword search": "2026-11-23T11:43:54.085Z",
+    "X public keyword search": "2026-11-23T11:43:54.085Z"
   },
   "searchCredits": {
     "day": "2026-11-23",
@@ -104,5 +107,5 @@
   "xSearch": {
     "completedAt": "2026-11-23T02:34:32.359Z"
   },
-  "lastScanAt": "2026-11-23T02:34:32.359Z"
+  "lastScanAt": "2026-11-23T11:13:54.085Z"
 }
