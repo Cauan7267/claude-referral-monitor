@@ -114,11 +114,11 @@
     "available": [
       "Guest pass directory",
       "NodeLoc",
-      "Hacker News",
-      "X public keyword search"
+      "Hacker News"
     ],
     "unavailable": [
       "Linux.do",
+      "X public keyword search",
       "Reddit public keyword search",
       "Reddit posts",
       "Reddit comments"
@@ -126,7 +126,7 @@
   },
   "sourceBackoff": {
     "Linux.do": "2026-11-25T18:39:48.343Z",
-    "Reddit posts": "2026-11-25T13:09:48.343Z",
+    "Reddit posts": "2026-11-25T17:34:10.959Z",
     "Reddit comments": "2026-11-23T23:23:17.465Z",
     "Reddit public keyword search": "2026-11-25T13:09:48.343Z"
   },
@@ -140,5 +140,5 @@
   "xSearch": {
     "completedAt": "2026-11-25T12:39:48.343Z"
   },
-  "lastScanAt": "2026-11-25T12:39:48.343Z"
+  "lastScanAt": "2026-11-25T17:04:10.959Z"
 }
