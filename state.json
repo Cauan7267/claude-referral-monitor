@@ -109,7 +109,7 @@
     "8b3a04d7e9bdadf3f63bac8d189dd58d8c7ab5b5c0175ee0e71ddaaf68cf257a": "2026-11-25T12:39:57.009Z",
     "08e6d7fa8d3e22cc4ae928f8384b80ed64cc03dd6abfe337409ef9aa63dbbd50": "2026-11-25T12:39:57.009Z"
   },
-  "lastCheckDay": "2026-11-27",
+  "lastCheckDay": "2026-11-28",
   "sources": {
     "available": [
       "Guest pass directory",
@@ -125,17 +125,17 @@
     ]
   },
   "sourceBackoff": {
-    "Linux.do": "2026-11-28T02:15:18.529Z",
+    "Linux.do": "2026-11-28T08:56:14.113Z",
     "Reddit posts": "2026-11-27T20:45:18.529Z",
-    "Reddit comments": "2026-11-27T11:50:16.149Z",
+    "Reddit comments": "2026-11-28T03:26:14.113Z",
     "Reddit public keyword search": "2026-11-25T13:09:48.343Z"
   },
   "searchCredits": {
-    "day": "2026-11-27",
+    "day": "2026-11-28",
     "spent": 0
   },
   "xSearch": {
     "completedAt": "2026-11-25T12:39:48.343Z"
   },
-  "lastScanAt": "2026-11-27T20:15:18.529Z"
+  "lastScanAt": "2026-11-28T02:56:14.113Z"
 }
