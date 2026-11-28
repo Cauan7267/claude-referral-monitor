@@ -125,9 +125,9 @@
     ]
   },
   "sourceBackoff": {
-    "Linux.do": "2026-11-28T08:56:14.113Z",
+    "Linux.do": "2026-11-28T17:37:16.807Z",
     "Reddit posts": "2026-11-27T20:45:18.529Z",
-    "Reddit comments": "2026-11-28T03:26:14.113Z",
+    "Reddit comments": "2026-11-28T12:07:16.807Z",
     "Reddit public keyword search": "2026-11-25T13:09:48.343Z"
   },
   "searchCredits": {
@@ -137,5 +137,5 @@
   "xSearch": {
     "completedAt": "2026-11-25T12:39:48.343Z"
   },
-  "lastScanAt": "2026-11-28T02:56:14.113Z"
+  "lastScanAt": "2026-11-28T11:37:16.807Z"
 }
